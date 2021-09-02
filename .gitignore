@@ -1,0 +1,9 @@
+/dist
+/build
+/node_modules
+/logs
+yarn.lock
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
