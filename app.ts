@@ -37,8 +37,10 @@ function loadfilepath(filepath) {
 }
 
 //relative file paths
-loadfilepath('./graphql/schema.graphql')
-loadfilepath('../graphql/schema.graphql')
+//console.log('**** Depending on where started from, some tests are expected to fail (hence a failure results for some tests is a test success). ****')
+//loadfilepath('./graphql/schema.graphql')
+//loadfilepath('../graphql/schema.graphql')
 //absolute real filesystem with yarn start or for pkg snapshot read only file system in .dist, if resolveGlobsSync not calld
 loadfilepath(path.posix.join(__dirname, './graphql/schema.graphql'))
+//console.log('**** Depending on where started from, some tests are expected to fail (hence a failure results for some tests is a test success). ****')
 
