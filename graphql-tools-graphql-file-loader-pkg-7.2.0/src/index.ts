@@ -28,6 +28,11 @@ export interface GraphQLFileLoaderOptions extends BaseLoaderOptions {
    * Set to `true` to disable handling `#import` syntax
    */
   skipGraphQLImport?: boolean;
+
+  /**
+   * Set to `true` to raise errors if any matched files are not valid GraphQL
+   */
+  noSilentErrors?: boolean;
 }
 
 function isGraphQLImportFile(rawSDL: string) {
@@ -98,23 +103,33 @@ export class GraphQLFileLoader implements Loader<GraphQLFileLoaderOptions> {
   }
 
   async resolveGlobs(glob: string, options: GraphQLFileLoaderOptions) {
+    if (
+      !glob.includes('*') &&
+      (await this.canLoad(glob, options)) &&
+      !asArray(options.ignore || []).length &&
+      !options['includeSources']
+    )
+      return [glob]; // bypass globby when no glob character, can be loaded, no ignores and source not requested. Fixes problem with pkg and passes ci tests
     const globs = this._buildGlobs(glob, options);
     const result = await globby(globs, createGlobbyOptions(options));
     return result;
   }
 
   resolveGlobsSync(glob: string, options: GraphQLFileLoaderOptions) {
+    if (
+      !glob.includes('*') &&
+      this.canLoadSync(glob, options) &&
+      !asArray(options.ignore || []).length &&
+      !options['includeSources']
+    )
+      return [glob]; // bypass globby when no glob character, can be loaded, no ignores and source not requested. Fixes problem with pkg and passes ci tests
     const globs = this._buildGlobs(glob, options);
     const result = globby.sync(globs, createGlobbyOptions(options));
     return result;
   }
 
   async load(pointer: string, options: GraphQLFileLoaderOptions): Promise<Source[]> {
-    let resolvedPaths: string[] = [];
-    if (!pointer.includes('*') && await this.canLoad(pointer, options))
-      resolvedPaths = [pointer]
-    else
-      resolvedPaths = this.resolveGlobsSync(pointer, options);
+    const resolvedPaths = await this.resolveGlobs(pointer, options);
     const finalResult: Source[] = [];
     const errors: Error[] = [];
 
@@ -135,7 +150,7 @@ export class GraphQLFileLoader implements Loader<GraphQLFileLoaderOptions> {
       })
     );
 
-    if (finalResult.length === 0 && errors.length > 0) {
+    if (errors.length > 0 && (options.noSilentErrors || finalResult.length === 0)) {
       if (errors.length === 1) {
         throw errors[0];
       }
@@ -146,11 +161,7 @@ export class GraphQLFileLoader implements Loader<GraphQLFileLoaderOptions> {
   }
 
   loadSync(pointer: string, options: GraphQLFileLoaderOptions): Source[] {
-    let resolvedPaths: string[] = [];
-    if (!pointer.includes('*') && this.canLoadSync(pointer, options))
-      resolvedPaths = [pointer]
-    else
-      resolvedPaths = this.resolveGlobsSync(pointer, options);
+    const resolvedPaths = this.resolveGlobsSync(pointer, options);
     const finalResult: Source[] = [];
     const errors: Error[] = [];
 
@@ -169,7 +180,7 @@ export class GraphQLFileLoader implements Loader<GraphQLFileLoaderOptions> {
       }
     }
 
-    if (finalResult.length === 0 && errors.length > 0) {
+    if (errors.length > 0 && (options.noSilentErrors || finalResult.length === 0)) {
       if (errors.length === 1) {
         throw errors[0];
       }

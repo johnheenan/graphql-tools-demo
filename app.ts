@@ -23,6 +23,7 @@ function loadfilepath(filepath) {
     const contents = fs.readFileSync(filepath, 'utf8')
     console.log('contents of file: ', filepath)
     console.log(contents);
+    // let schema = loadSchemaSync([filepath,filepath,filepath], {
     let schema = loadSchemaSync(filepath, {
       loaders: [
         new GraphQLFileLoader(),

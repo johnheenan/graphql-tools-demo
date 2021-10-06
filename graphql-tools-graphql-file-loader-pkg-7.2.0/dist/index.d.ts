@@ -7,6 +7,10 @@ export interface GraphQLFileLoaderOptions extends BaseLoaderOptions {
      * Set to `true` to disable handling `#import` syntax
      */
     skipGraphQLImport?: boolean;
+    /**
+     * Set to `true` to raise errors if any matched files are not valid GraphQL
+     */
+    noSilentErrors?: boolean;
 }
 /**
  * This loader loads documents and type definitions from `.graphql` files.

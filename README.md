@@ -31,7 +31,7 @@ cd graphql-tools
 yarn
 yarn build
 cd packages\loaders\graphql-file
-yarn pack # or just zip up the contents or copy the contents of directory to another or just yarn link this directory
+yarn pack # copy the contents of directory, not including test directory, to another one as below
 ```
 
 Go back to graphql-tools-demo and place copy of contents of `packages\loaders\graphql-file` directory above in a directory below, such as `graphql-tools-graphql-file-loader-pkg-7.1.0`
@@ -39,7 +39,7 @@ Go back to graphql-tools-demo and place copy of contents of `packages\loaders\gr
 ```
 yarn upgrade -L # to upgrade again to version 7
 yarn remove @graphql-tools/graphql-file-loader
-cd graphql-tools-graphql-file-loader-pkg-7.1.0 # the contents of directory built above
+cd graphql-tools-graphql-file-loader-pkg-7.2.0 # the contents of directory built above without the test directory
 yarn link
 cd ..
 yarn link @graphql-tools/graphql-file-loader
